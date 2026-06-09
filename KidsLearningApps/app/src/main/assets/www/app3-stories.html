@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📚 Moral Stories – Voice & Text</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Baloo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#fdf6ec;--paper:#fff9f2;--amber:#7B3F00;--mid:#c4855a;--light:#f0e6d3;--text:#3a2c1a;--muted:#a08060;--border:#ecdcc8}
+body{font-family:'Baloo 2',sans-serif;background:var(--bg);min-height:100vh;color:var(--text)}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 20%,rgba(196,133,90,.07) 0%,transparent 55%),radial-gradient(ellipse at 80% 80%,rgba(123,63,0,.05) 0%,transparent 55%);pointer-events:none;z-index:0}
+.app{max-width:620px;margin:0 auto;padding:0 14px 60px;position:relative;z-index:1}
+
+/* ── HOME ── */
+.home-header{text-align:center;padding:26px 0 16px}
+.app-title{font-family:'Playfair Display',serif;font-size:clamp(1.85rem,6vw,2.5rem);color:var(--amber);margin-bottom:4px}
+.app-sub{color:var(--muted);font-size:.9rem}
+.home-note{display:flex;align-items:center;gap:8px;background:rgba(196,133,90,.1);border:1px solid var(--border);border-radius:12px;padding:10px 14px;margin-bottom:16px;font-size:.8rem;color:var(--muted)}
+
+.lang-toggle{display:flex;align-items:center;justify-content:center;background:var(--light);border-radius:50px;padding:4px;width:fit-content;margin:0 auto 20px;border:1.5px solid var(--border)}
+.lang-btn{padding:9px 24px;border:none;border-radius:50px;font-family:'Baloo 2',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;transition:all .22s;background:transparent;color:var(--muted)}
+.lang-btn.active{background:var(--amber);color:white;box-shadow:0 2px 12px rgba(123,63,0,.35)}
+
+.story-grid{display:grid;gap:11px}
+.story-card{background:white;border-radius:20px;padding:15px 16px;cursor:pointer;border:2px solid var(--border);transition:all .2s;display:flex;align-items:center;gap:13px;box-shadow:0 2px 8px rgba(0,0,0,.04);position:relative;overflow:hidden}
+.story-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:0;background:var(--cc,#c4855a)}
+.story-card:hover{border-color:var(--cc,#c4855a);transform:translateX(4px);box-shadow:0 4px 18px rgba(0,0,0,.1)}
+.s-icon{font-size:2.4rem;min-width:52px;height:52px;display:flex;align-items:center;justify-content:center;background:var(--light);border-radius:14px;border:1.5px solid var(--border);flex-shrink:0}
+.s-info{flex:1;min-width:0}
+.s-title{font-family:'Playfair Display',serif;font-size:1rem;color:var(--amber);margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.s-tag{font-size:.75rem;color:var(--muted);margin-bottom:5px}
+.s-badges{display:flex;gap:5px;flex-wrap:wrap}
+.badge{font-size:.67rem;font-weight:700;padding:2px 7px;border-radius:20px;background:var(--light);color:var(--muted);border:1px solid var(--border)}
+.badge.done{background:#e8f5e9;color:#388E3C;border-color:#a5d6a7}
+.s-arr{color:var(--mid);font-size:1.2rem;flex-shrink:0}
+
+/* ── READ SCREEN ── */
+#readScreen{display:none}
+.back-btn{display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--muted);font-size:.85rem;font-weight:700;padding:14px 0 8px;width:fit-content}
+.back-btn:hover{color:var(--amber)}
+
+.read-header{text-align:center;padding:4px 0 14px}
+.rh-icon{font-size:3.8rem;display:block;margin-bottom:6px;transition:all .3s}
+.rh-icon.speaking{animation:speakBounce .6s ease-in-out infinite alternate}
+@keyframes speakBounce{from{transform:scale(1)}to{transform:scale(1.08) translateY(-4px)}}
+.rh-title{font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--amber);margin-bottom:2px}
+.rh-meta{color:var(--muted);font-size:.8rem}
+
+.prog-track{background:var(--light);border-radius:20px;height:8px;margin-bottom:14px;overflow:hidden;border:1px solid var(--border)}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--mid),#e8a070);border-radius:20px;transition:width .4s ease}
+
+/* Story page */
+.page-card{background:var(--paper);border-radius:22px;padding:24px 20px;border:1.5px solid var(--border);box-shadow:0 4px 24px rgba(0,0,0,.07),inset 0 1px 0 rgba(255,255,255,.8);margin-bottom:12px;min-height:180px;position:relative;overflow:hidden;transition:opacity .28s,transform .28s}
+.page-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--cc,#c4855a),rgba(255,255,255,0))}
+.scene-row{text-align:center;font-size:3rem;margin-bottom:11px;line-height:1}
+.story-text{font-size:1.05rem;line-height:1.9;color:var(--text)}
+.story-text.hi{font-size:1.1rem;line-height:2.15}
+.word-span{border-radius:3px;padding:0 1px;transition:background .1s,color .1s}
+.word-span.active{background:rgba(196,133,90,.3);color:var(--amber);font-weight:700}
+
+/* Moral */
+.moral-card{background:linear-gradient(145deg,var(--amber),var(--mid));border-radius:22px;padding:22px 20px;color:white;text-align:center;margin-bottom:12px;box-shadow:0 6px 24px rgba(123,63,0,.32);display:none}
+.moral-label{font-size:.7rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;opacity:.75;margin-bottom:6px}
+.moral-leaf{font-size:2.2rem;display:block;margin-bottom:8px}
+.moral-text{font-size:1.05rem;font-weight:600;line-height:1.75}
+.moral-text.hi{font-size:1.1rem;line-height:1.9}
+.read-moral-btn{margin-top:14px;background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.4);border-radius:50px;padding:8px 20px;color:white;font-family:'Baloo 2',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;transition:background .18s}
+.read-moral-btn:hover{background:rgba(255,255,255,.3)}
+
+/* Completion */
+.comp-card{background:var(--paper);border-radius:22px;padding:24px;text-align:center;border:2px solid var(--border);margin-bottom:12px;display:none}
+.comp-emoji{font-size:3.8rem;display:block;margin-bottom:7px;animation:pop .4s ease}
+@keyframes pop{0%{transform:scale(0)}70%{transform:scale(1.18)}100%{transform:scale(1)}}
+.comp-title{font-family:'Playfair Display',serif;font-size:1.55rem;color:var(--amber);margin-bottom:4px}
+.comp-sub{color:var(--muted);font-size:.85rem;margin-bottom:12px}
+.comp-stars{font-size:2rem;letter-spacing:4px}
+
+/* Audio controls */
+.audio-box{background:white;border-radius:18px;padding:12px 14px;border:1.5px solid var(--border);margin-bottom:11px;display:flex;align-items:center;gap:11px;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+.play-btn{width:46px;height:46px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--amber),var(--mid));color:white;font-size:1.05rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 14px rgba(123,63,0,.3)}
+.play-btn:hover{transform:scale(1.06)}
+.play-btn:active{transform:scale(.95)}
+.play-btn.on{background:linear-gradient(135deg,#c0392b,#e74c3c)}
+.audio-mid{flex:1;min-width:0}
+.audio-title{font-size:.82rem;color:var(--text);font-weight:700;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.audio-sub{font-size:.7rem;color:var(--muted)}
+.wave{display:flex;align-items:center;gap:2px;height:20px;flex-shrink:0}
+.wb{width:3px;background:var(--mid);border-radius:2px;animation:wv var(--d,.7s) ease-in-out infinite alternate;animation-play-state:paused}
+.wb.on{animation-play-state:running}
+@keyframes wv{from{height:3px}to{height:18px}}
+.spd-group{display:flex;gap:4px;flex-shrink:0}
+.spd-btn{padding:5px 8px;border:1.5px solid var(--border);border-radius:8px;background:transparent;color:var(--muted);font-size:.7rem;font-weight:700;cursor:pointer;transition:all .18s;font-family:'Baloo 2',sans-serif}
+.spd-btn.sel{background:var(--amber);color:white;border-color:var(--amber)}
+
+/* Auto-advance row */
+.auto-row{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;background:white;border-radius:13px;border:1.5px solid var(--border);margin-bottom:12px;cursor:pointer}
+.auto-lbl{font-size:.85rem;color:var(--text);font-weight:600}
+.auto-lbl small{display:block;font-size:.7rem;color:var(--muted);font-weight:400}
+.tog-wrap{position:relative;width:42px;height:23px}
+.tog-wrap input{opacity:0;width:0;height:0;position:absolute}
+.tog-track{position:absolute;inset:0;background:#ccc;border-radius:23px;cursor:pointer;transition:background .2s}
+.tog-track::before{content:'';position:absolute;top:2.5px;left:2.5px;width:18px;height:18px;background:white;border-radius:50%;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.22)}
+.tog-wrap input:checked+.tog-track{background:var(--amber)}
+.tog-wrap input:checked+.tog-track::before{transform:translateX(19px)}
+
+/* Nav row */
+.nav-row{display:flex;gap:10px}
+.nbtn{flex:1;padding:12px;border-radius:14px;border:none;font-family:'Baloo 2',sans-serif;font-size:.92rem;font-weight:700;cursor:pointer;transition:transform .13s,opacity .2s}
+.nbtn:hover{transform:scale(1.02)}
+.nbtn:active{transform:scale(.97)}
+.nbtn-prev{background:var(--light);color:var(--amber);border:1.5px solid var(--border)}
+.nbtn-prev:disabled{opacity:.35;cursor:default;transform:none}
+.nbtn-next{background:linear-gradient(135deg,var(--amber),var(--mid));color:white;box-shadow:0 4px 14px rgba(123,63,0,.28)}
+
+/* Toast */
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:rgba(58,44,26,.92);color:white;padding:9px 18px;border-radius:50px;font-size:.82rem;font-weight:600;transition:transform .3s;z-index:999;white-space:nowrap;max-width:90vw;text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- HOME -->
+<div id="homeScreen">
+  <div class="home-header">
+    <h1 class="app-title">📚 Moral Stories</h1>
+    <p class="app-sub">8 stories • Hindi & English voice narration</p>
+  </div>
+
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btnEn" onclick="setLang('en')">🇬🇧 English</button>
+    <button class="lang-btn" id="btnHi" onclick="setLang('hi')">🇮🇳 हिंदी</button>
+  </div>
+
+  <div class="home-note">🔊 Tap any story → press ▶ to hear it read aloud in the chosen language. Word-by-word highlighting follows the narration.</div>
+
+  <div class="story-grid" id="storyGrid"></div>
+</div>
+
+<!-- READ SCREEN -->
+<div id="readScreen">
+  <div class="back-btn" onclick="goHome()">← Back to Stories</div>
+
+  <div class="read-header">
+    <span class="rh-icon" id="rhIcon">📖</span>
+    <div class="rh-title" id="rhTitle">Story</div>
+    <div class="rh-meta" id="rhMeta">Page 1 of 5</div>
+  </div>
+
+  <div class="prog-track"><div class="prog-fill" id="pgFill"></div></div>
+
+  <div class="page-card" id="pageCard">
+    <div class="scene-row" id="pageScene">🌿</div>
+    <div class="story-text" id="pageText">Once upon a time…</div>
+  </div>
+
+  <div class="moral-card" id="moralCard">
+    <div class="moral-label">✨ Moral of the Story</div>
+    <span class="moral-leaf">🌿</span>
+    <div class="moral-text" id="moralText"></div>
+    <button class="read-moral-btn" id="readMoralBtn" onclick="readMoral()">🔊 Read Moral Aloud</button>
+  </div>
+
+  <div class="comp-card" id="compCard">
+    <span class="comp-emoji">🎉</span>
+    <div class="comp-title" id="compTitle">Well done!</div>
+    <div class="comp-sub" id="compSub">You finished this story!</div>
+    <div class="comp-stars">⭐⭐⭐</div>
+  </div>
+
+  <div class="audio-box" id="audioBox">
+    <button class="play-btn" id="playBtn" onclick="togglePlay()">▶</button>
+    <div class="audio-mid">
+      <div class="audio-title" id="audioTitle">Tap ▶ to listen</div>
+      <div class="audio-sub" id="audioSub">Voice narration enabled</div>
+    </div>
+    <div class="wave" id="waveEl">
+      <div class="wb" style="--d:.5s;height:4px"></div>
+      <div class="wb" style="--d:.65s;height:10px;animation-delay:.08s"></div>
+      <div class="wb" style="--d:.45s;height:6px;animation-delay:.18s"></div>
+      <div class="wb" style="--d:.75s;height:14px;animation-delay:.04s"></div>
+      <div class="wb" style="--d:.55s;height:8px;animation-delay:.12s"></div>
+    </div>
+    <div class="spd-group">
+      <button class="spd-btn" data-s="0.7" onclick="setSpd(this)">0.7×</button>
+      <button class="spd-btn sel" data-s="1.0" onclick="setSpd(this)">1×</button>
+      <button class="spd-btn" data-s="1.3" onclick="setSpd(this)">1.3×</button>
+    </div>
+  </div>
+
+  <label class="auto-row">
+    <div class="auto-lbl">Auto-advance pages <small>Go to next page when narration ends</small></div>
+    <div class="tog-wrap"><input type="checkbox" id="autoTog"><div class="tog-track"></div></div>
+  </label>
+
+  <div class="nav-row">
+    <button class="nbtn nbtn-prev" id="btnPrev" onclick="goPage(-1)">← Prev</button>
+    <button class="nbtn nbtn-next" id="btnNext">Next →</button>
+  </div>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================================================================
+   STORIES DATA  (8 stories × 5 pages × 2 languages)
+================================================================ */
+const S=[
+{id:0,icon:'🦁🐭',cc:'#c4855a',
+en:{title:'The Lion and the Mouse',tag:'Kindness always comes back',
+pages:[
+{sc:'🦁😴🌿',t:'Deep in the jungle, a mighty lion lay fast asleep under a shady tree. Golden sunlight filtered through the leaves, and the whole forest was peaceful and still.'},
+{sc:'🐭😨🦁',t:'A tiny mouse was scampering nearby when she accidentally ran right across the lion\'s nose, waking him with a thunderous roar! The lion grabbed her in his enormous paw.'},
+{sc:'🐭🙏✨',t:'"Please spare me, great king!" squeaked the mouse. "Let me go, and one day I will surely help you!" The lion laughed — how could such a tiny creature ever help him? But kindly, he let her go.'},
+{sc:'🦁🕸️😰',t:'Days later, hunters set a strong rope net as a trap. The lion walked right into it and was caught! He roared and struggled with all his might, but could not break free.'},
+{sc:'🐭✂️🦁🎉',t:'The little mouse heard his desperate roar and ran to him at once. Using her sharp little teeth, she chewed through the ropes one by one — and set the great lion free! Even the smallest friend can do the mightiest deed.'}
+],
+moral:'No act of kindness is ever too small. Even the tiniest person can help the mightiest one. Always be kind.'},
+hi:{title:'शेर और चूहा',tag:'दयालुता हमेशा लौटकर आती है',
+pages:[
+{sc:'🦁😴🌿',t:'एक घने जंगल में एक ताकतवर शेर एक बड़े पेड़ की छाँव में गहरी नींद में सो रहा था। सुनहरी धूप पत्तियों के बीच से छन रही थी और पूरा जंगल शांत था।'},
+{sc:'🐭😨🦁',t:'एक नन्हा चूहा इधर-उधर भागते-भागते अचानक शेर की नाक पर से गुज़र गया! शेर एक ज़ोरदार दहाड़ के साथ जागा और उसने चूहे को अपने विशाल पंजे में दबोच लिया।'},
+{sc:'🐭🙏✨',t:'"महाराज, कृपया मुझे माफ़ कर दीजिए!" चूहे ने गिड़गिड़ाते हुए कहा। "मुझे छोड़ दीजिए, एक दिन मैं ज़रूर आपके काम आऊँगा!" शेर ज़ोर से हँसा — पर फिर भी उसने चूहे को छोड़ दिया।'},
+{sc:'🦁🕸️😰',t:'कुछ दिन बाद शिकारियों ने मज़बूत रस्सियों का जाल बिछाया। शेर उस जाल में फँस गया! वह दहाड़ता और छटपटाता रहा, पर जाल से निकल नहीं सका।'},
+{sc:'🐭✂️🦁🎉',t:'नन्हे चूहे ने शेर की बेबस दहाड़ सुनी और दौड़ा चला आया। उसने अपने नुकीले दाँतों से एक-एक रस्सी काटी — और शेर आज़ाद हो गया! छोटे दोस्त भी बड़े काम करते हैं।'}
+],
+moral:'दयालुता का कोई काम कभी छोटा नहीं होता। सबसे छोटा व्यक्ति भी सबसे बड़े की मदद कर सकता है। हमेशा दयालु रहो।'}
+},
+
+{id:1,icon:'🐢🐇',cc:'#4CAF50',
+en:{title:'The Tortoise and the Hare',tag:'Slow and steady wins the race',
+pages:[
+{sc:'🐇😏🐢',t:'A boastful hare met a slow tortoise on the forest path one morning. "Look how slowly you walk!" laughed the hare. "I could beat you in any race without even trying!"'},
+{sc:'🏁🐢🐇',t:'"Let us race then," said the tortoise calmly. All the animals gathered to watch. The signal was given — the hare shot off like lightning while the tortoise began his slow, steady walk.'},
+{sc:'🌳😴🐇💤',t:'The hare raced so far ahead that he could not even see the tortoise. "This is far too easy," he yawned. "I shall nap under this shady tree." And he fell fast asleep.'},
+{sc:'🐢💪🚶',t:'The tortoise walked on. One slow step, then another. He never stopped, never rushed, and never looked back. Steadily he moved toward the finish line.'},
+{sc:'🎉🐢🏆🐇😲',t:'The hare woke with a start and sprinted to the finish — but the tortoise was already there, smiling! All the animals cheered wildly. The slow, steady tortoise had won the race!'}
+],
+moral:'Slow and steady wins the race. Patience and perseverance always beat speed and overconfidence.'},
+hi:{title:'कछुआ और खरगोश',tag:'धीरे और स्थिर आगे बढ़ो',
+pages:[
+{sc:'🐇😏🐢',t:'एक सुबह जंगल के रास्ते पर एक घमंडी खरगोश एक धीमे कछुए से मिला। "देखो तुम कितना धीमा चलते हो!" खरगोश हँसा। "मैं बिना कोशिश किए भी तुम्हें हरा सकता हूँ!"'},
+{sc:'🏁🐢🐇',t:'"तो फिर दौड़ लगाते हैं," कछुए ने शांति से कहा। सभी जानवर देखने आ गए। संकेत मिलते ही खरगोश बिजली की तरह निकल गया और कछुआ अपनी धीमी चाल से चलने लगा।'},
+{sc:'🌳😴🐇💤',t:'खरगोश इतनी तेज़ी से आगे निकल गया कि कछुआ दिखाई भी नहीं दे रहा था। "यह बहुत आसान है," उसने जम्हाई ली। "इस छायादार पेड़ के नीचे थोड़ी झपकी ले लेता हूँ।" और वह गहरी नींद में सो गया।'},
+{sc:'🐢💪🚶',t:'कछुआ चलता रहा। एक धीमा कदम, फिर दूसरा। वह न रुका, न घबराया, न पीछे मुड़ा। कदम-दर-कदम वह आगे बढ़ता रहा।'},
+{sc:'🎉🐢🏆🐇😲',t:'खरगोश अचानक उठा और दौड़ा — लेकिन कछुआ पहले से ही वहाँ मुस्कुरा रहा था! सभी जानवर खुशी से चिल्लाए। धीमे और स्थिर कछुए ने दौड़ जीत ली!'}
+],
+moral:'धीरे और स्थिर आगे बढ़ने से जीत मिलती है। धैर्य और लगन हमेशा घमंड और जल्दबाज़ी को हराते हैं।'}
+},
+
+{id:2,icon:'🦊🍇',cc:'#9C27B0',
+en:{title:'The Fox and the Grapes',tag:"Don't make excuses for failure",
+pages:[
+{sc:'🦊😋☀️',t:'On a hot afternoon, a hungry fox wandered through a lush vineyard. He had not eaten all day and his stomach growled as the warm sun beat down on the dusty path.'},
+{sc:'🦊🍇✨',t:'High on a vine, he spotted a gorgeous bunch of plump, dark purple grapes glistening in the sunlight. "Those look absolutely delicious!" he exclaimed, licking his lips eagerly.'},
+{sc:'🦊🏃💦',t:'He leaped up as high as he could — but missed! He tried again and again. He ran, jumped, climbed a rock, and leaped from every angle. But the grapes were always just out of reach.'},
+{sc:'🦊🚶😤',t:'Finally, exhausted and burning with embarrassment, the fox turned away. He held his nose high in the air and walked off with as much dignity as he could manage.'},
+{sc:'🦊💭😔',t:'"Those grapes are probably sour and tasteless anyway," he muttered to himself. But deep in his heart, he knew the truth — the grapes were perfect. He had simply failed to reach them.'}
+],
+moral:"Don't make excuses for your failures. Admit them honestly, learn from them, and try again."},
+hi:{title:'लोमड़ी और अंगूर',tag:'असफलता के बहाने मत बनाओ',
+pages:[
+{sc:'🦊😋☀️',t:'एक गर्म दोपहर को एक भूखी लोमड़ी कुछ खाने की तलाश में अंगूर के बाग में घूम रही थी। उसने पूरा दिन कुछ नहीं खाया था और धूप में चलते-चलते उसका पेट ज़ोर-ज़ोर से बोल रहा था।'},
+{sc:'🦊🍇✨',t:'बेल पर ऊँचाई पर उसे पके, काले-बैंगनी अंगूरों का एक चमकीला गुच्छा दिखा। "वाह, ये तो बहुत स्वादिष्ट लग रहे हैं!" उसने होंठ चाटते हुए कहा।'},
+{sc:'🦊🏃💦',t:'वह जितनी ऊँची कूद सकती थी, कूदी — पर अंगूर नहीं मिले! उसने बार-बार कोशिश की। दौड़ी, कूदी, पत्थर पर चढ़ी, हर तरफ से उछली। पर अंगूर हमेशा थोड़े दूर रहे।'},
+{sc:'🦊🚶😤',t:'आखिरकार, थकी और शर्मिंदा होकर, लोमड़ी वहाँ से चली गई। उसने नाक ऊँची कर ली और जितनी गरिमा से हो सके, वहाँ से निकल गई।'},
+{sc:'🦊💭😔',t:'"वैसे वो अंगूर खट्टे और बेकार ही होंगे," उसने मन में कहा। पर मन की गहराई में वह जानती थी — अंगूर बिल्कुल अच्छे थे। वह बस उन तक पहुँच नहीं पाई थी।'}
+],
+moral:'अपनी असफलताओं के बहाने मत बनाओ। उन्हें ईमानदारी से स्वीकारो, उनसे सीखो और फिर कोशिश करो।'}
+},
+
+{id:3,icon:'🦅🏺',cc:'#2196F3',
+en:{title:'The Crow and the Pitcher',tag:'Use your brain to solve problems',
+pages:[
+{sc:'🦅☀️😰',t:'On a scorching summer day, a very thirsty crow flew across the dry land searching desperately for water. He had been flying for a long time and his throat was painfully parched.'},
+{sc:'🦅🏺💧',t:'At last, he spotted a tall clay pitcher on the ground! He flew down and peered inside — there was water. But it sat very low, far too deep for his beak to reach. He pushed the pitcher but it was too heavy.'},
+{sc:'🦅🪨💡',t:'The crow did not give up. He sat quietly and thought. He looked around and saw small pebbles scattered on the ground. Suddenly, a brilliant idea flashed in his clever mind!'},
+{sc:'🦅🪨🏺',t:'One by one, the clever crow picked up pebbles and dropped them carefully into the pitcher. With each stone, he watched the water level rise just a little higher. He worked patiently and steadily.'},
+{sc:'🦅💧😄',t:'After many pebbles, the water rose all the way to the brim! The crow drank deeply and felt gloriously refreshed. He had solved his problem entirely with patience and clever thinking.'}
+],
+moral:"Where there's a will, there's a way. Use your mind and patience to solve any problem you face."},
+hi:{title:'कौआ और घड़ा',tag:'बुद्धि से हर समस्या हल होती है',
+pages:[
+{sc:'🦅☀️😰',t:'एक तपती गर्मी के दिन एक बहुत प्यासा कौआ पानी की तलाश में सूखी धरती पर उड़ रहा था। वह बहुत देर से उड़ रहा था और उसका गला बुरी तरह सूख गया था।'},
+{sc:'🦅🏺💧',t:'आखिरकार उसे ज़मीन पर एक लंबा मिट्टी का घड़ा दिखा! वह उतरा और झाँका — पानी था। लेकिन यह बहुत नीचे था, उसकी चोंच के पहुँचने से बहुत गहरा। घड़ा धकेला तो वह बहुत भारी निकला।'},
+{sc:'🦅🪨💡',t:'कौए ने हार नहीं मानी। वह शांति से बैठकर सोचने लगा। उसने आसपास देखा और पास में छोटे-छोटे कंकड़ नज़र आए। अचानक उसके मन में एक शानदार विचार आया!'},
+{sc:'🦅🪨🏺',t:'चतुर कौए ने एक-एक करके कंकड़ उठाए और घड़े में डालते गया। हर पत्थर के साथ उसने देखा कि पानी थोड़ा-थोड़ा ऊपर आता जा रहा है। वह धैर्य से काम करता रहा।'},
+{sc:'🦅💧😄',t:'बहुत सारे कंकड़ डालने के बाद पानी ऊपर तक आ गया! कौए ने भरपूर पानी पिया और तरोताज़ा हो गया। उसने धैर्य और चतुराई से अपनी समस्या हल कर ली।'}
+],
+moral:'जहाँ चाह, वहाँ राह। धैर्य और बुद्धि से हर समस्या का हल निकाला जा सकता है।'}
+},
+
+{id:4,icon:'🐜🦗',cc:'#FF9800',
+en:{title:'The Ant and the Grasshopper',tag:'Work today, enjoy tomorrow',
+pages:[
+{sc:'🐜☀️🌾',t:'All through the warm, sunny summer, a tiny ant worked hard every single day. She collected seeds and grain and carried them steadily to her cozy underground home, preparing for winter.'},
+{sc:'🦗🎵😎',t:'Nearby, a carefree grasshopper danced and played his fiddle all day long. "Come and play with me!" he called to the ant. "Why work so hard on such a beautiful summer day?"'},
+{sc:'🐜💪🏡',t:'"Winter is coming," said the ant without stopping. "I must prepare now." The grasshopper laughed. "Winter is far away — there is plenty of time for work later!" And he kept singing merrily.'},
+{sc:'❄️🥶🦗',t:'When winter arrived, the land was buried under thick white snow and the cold wind howled. The grasshopper had no food and no shelter. Shivering and hungry, he knocked on the ant\'s door.'},
+{sc:'🐜🏠🍞🦗',t:'The kind ant opened her door and shared some of her food. "Next summer," she said gently, "work a little every day. Then you will never go hungry in winter again." The grasshopper nodded and understood.'}
+],
+moral:'Hard work and preparation today bring comfort and safety tomorrow. Never put off until tomorrow what you can do today.'},
+hi:{title:'चींटी और टिड्डा',tag:'आज मेहनत करो, कल आनंद लो',
+pages:[
+{sc:'🐜☀️🌾',t:'पूरी गर्म और सुनहरी गर्मी के दौरान, एक छोटी सी चींटी हर दिन बिना थके काम करती रही। वह बीज और अनाज इकट्ठा करके अपने भूमिगत घर में जमा करती — सर्दी के लिए तैयारी करती।'},
+{sc:'🦗🎵😎',t:'पास में एक लापरवाह टिड्डा सारा दिन नाचता और वायलिन बजाता था। "मेरे साथ खेलो!" उसने चींटी को बुलाया। "ऐसे सुंदर दिन इतनी मेहनत क्यों करनी?"'},
+{sc:'🐜💪🏡',t:'"सर्दी आने वाली है," चींटी ने बिना रुके कहा। "मुझे अभी तैयारी करनी होगी।" टिड्डा हँसा। "सर्दी तो अभी बहुत दूर है — बाद में भी काम हो जाएगा!" और वह खुशी से गाता रहा।'},
+{sc:'❄️🥶🦗',t:'जब सर्दी आई तो धरती मोटी सफेद बर्फ से ढक गई और ठंडी हवा सनसनाई। टिड्डे के पास न खाना था, न आश्रय। काँपता और भूखा, उसने चींटी के दरवाज़े पर दस्तक दी।'},
+{sc:'🐜🏠🍞🦗',t:'दयालु चींटी ने दरवाज़ा खोला और थोड़ा खाना बाँटा। "अगली गर्मियों में," उसने नरमी से कहा, "हर दिन थोड़ा-थोड़ा काम करो। फिर सर्दियों में कभी भूखे नहीं रहोगे।" टिड्डे ने सिर झुकाकर सीख ली।'}
+],
+moral:'आज की मेहनत और तैयारी कल का सुख और सुरक्षा लाती है। जो काम आज हो सके उसे कल पर मत टालो।'}
+},
+
+{id:5,icon:'🐕🦴',cc:'#F44336',
+en:{title:'The Greedy Dog',tag:'Be thankful for what you have',
+pages:[
+{sc:'🐕🦴😄',t:'A lucky dog found a big, juicy bone near a butcher\'s shop. He was absolutely delighted! He picked it up firmly in his mouth and trotted off happily toward home.'},
+{sc:'🌉🐕💧',t:'On the way home he had to cross a narrow wooden bridge over a calm river. He walked to the middle and happened to look down at the clear water below.'},
+{sc:'🐕😡🐕',t:'There in the water he saw another dog staring up at him — and that dog seemed to have an even bigger, fatter bone! "I want that bone too!" he growled with jealousy. But it was only his own reflection.'},
+{sc:'🐕😤💦🦴',t:'Unable to resist, the greedy dog opened his mouth wide to grab the other bone — SPLASH! His own precious bone fell straight into the river and sank to the muddy bottom.'},
+{sc:'🐕😢💭',t:'The dog stared sadly into the water. There was no other dog, no other bone — only his own foolish reflection. By being greedy and wanting more, he had lost everything he had.'}
+],
+moral:'Greed leads to loss. Be grateful and content with what you have, or you may lose it all.'},
+hi:{title:'लालची कुत्ता',tag:'जो है उसमें संतोष रखो',
+pages:[
+{sc:'🐕🦴😄',t:'एक भाग्यशाली कुत्ते को एक कसाई की दुकान के पास एक बड़ी, रसीली हड्डी मिली। वह बहुत खुश था! उसने हड्डी मुँह में मज़बूती से दबाई और खुशी-खुशी घर की ओर चल पड़ा।'},
+{sc:'🌉🐕💧',t:'घर जाते समय उसे एक शांत नदी के ऊपर एक संकरे लकड़ी के पुल से गुज़रना था। वह पुल के बीच में पहुँचा और नीचे साफ पानी में देखने लगा।'},
+{sc:'🐕😡🐕',t:'पानी में उसे एक और कुत्ता दिखा जो ऊपर देख रहा था — और उस कुत्ते के मुँह में एक और भी बड़ी हड्डी थी! "मुझे वो हड्डी भी चाहिए!" उसने जलन से गुर्राया। पर वह उसकी अपनी परछाईं थी।'},
+{sc:'🐕😤💦🦴',t:'लालच में आकर कुत्ते ने मुँह खोला दूसरी हड्डी छीनने के लिए — धड़ाम! उसकी अपनी कीमती हड्डी सीधे नदी में जा गिरी और कीचड़ में डूब गई।'},
+{sc:'🐕😢💭',t:'कुत्ते ने उदास होकर खाली पानी में देखा। न कोई दूसरा कुत्ता था, न दूसरी हड्डी — केवल उसकी अपनी मूर्ख परछाईं। लालच में, उसने जो था वो सब खो दिया।'}
+],
+moral:'लालच में नुकसान है। जो है उसमें संतोष रखो, वरना सब कुछ खो सकते हो।'}
+},
+
+{id:6,icon:'🐺👦',cc:'#607D8B',
+en:{title:'The Boy Who Cried Wolf',tag:'Always tell the truth',
+pages:[
+{sc:'👦🐑⛰️',t:'A young shepherd boy watched over his fluffy white sheep on a peaceful hillside every day. But the job was lonely and boring, and the mischievous boy desperately wanted some excitement.'},
+{sc:'👦📢😂',t:'"Wolf! Wolf! A wolf is attacking the sheep!" he yelled one day as a naughty joke. The alarmed villagers grabbed their tools and ran up — but there was no wolf. The boy laughed loudly at their concern.'},
+{sc:'👦📢🙄',t:'A few days later, he did it again. "Wolf! Wolf!" The tired villagers ran up the hill once more — and again there was no wolf. They went home grumbling, very annoyed with the lying boy.'},
+{sc:'🐺😱👦',t:'Then one dark evening, a real wolf crept out from the trees and circled the frightened flock, growling and snapping! "Wolf! Wolf! Please help me!" the terrified boy screamed.'},
+{sc:'👦😢🐑',t:'But the villagers heard him and shook their heads. "It is just that boy tricking us again," they said — and nobody came. The wolf scattered all the sheep. The boy learned the hardest lesson of his life.'}
+],
+moral:'Always tell the truth. A liar is not believed even when speaking the truth. Honesty is the greatest trust.'},
+hi:{title:'भेड़िया आया रे',tag:'हमेशा सच बोलो',
+pages:[
+{sc:'👦🐑⛰️',t:'एक नौजवान चरवाहा लड़का रोज़ एक शांत पहाड़ी पर अपनी भेड़ों की देखभाल करता था। लेकिन काम अकेला और उबाऊ था, और शरारती लड़के को कुछ मज़ा चाहिए था।'},
+{sc:'👦📢😂',t:'एक दिन नटखट मज़े के लिए उसने चिल्लाया, "भेड़िया! भेड़िया! भेड़िया भेड़ों पर हमला कर रहा है!" डरे हुए गाँव वाले दौड़े — पर कोई भेड़िया नहीं था। लड़का ज़ोर से हँसा।'},
+{sc:'👦📢🙄',t:'कुछ दिन बाद उसने फिर यही किया। "भेड़िया! भेड़िया!" थके गाँव वाले फिर दौड़े — और फिर कोई भेड़िया नहीं था। वे गुस्से में वापस चले गए।'},
+{sc:'🐺😱👦',t:'फिर एक अंधेरी शाम, एक असली भेड़िया जंगल से निकल आया और भेड़ों के चारों ओर घूमने लगा, गुर्राते हुए! "भेड़िया! भेड़िया! मेरी मदद करो!" डरे हुए लड़के ने पूरी ताकत से चिल्लाया।'},
+{sc:'👦😢🐑',t:'पर गाँव वालों ने सिर हिला दिया। "यह वही लड़का है जो हमें फिर धोखा दे रहा है," उन्होंने कहा — और कोई नहीं आया। भेड़िया सारी भेड़ें भगा गया। लड़के ने ज़िंदगी का सबसे कड़ा सबक सीखा।'}
+],
+moral:'हमेशा सच बोलो। झूठे की बात कोई नहीं मानता, तब भी जब वह सच बोले। ईमानदारी सबसे बड़ा भरोसा है।'}
+},
+
+{id:7,icon:'🪿🥚',cc:'#E6B800',
+en:{title:'The Golden Goose',tag:'Greed destroys what you have',
+pages:[
+{sc:'🧑‍🌾🪿💛',t:'A kind farmer owned a very special goose. Every single morning, without fail, she would lay one beautiful, shining golden egg. The farmer and his wife were grateful and thanked her each day.'},
+{sc:'💰🏪😊',t:'He sold his golden eggs in the market and slowly became wealthy. He built a fine house, ate good food, and lived comfortably. But as he grew richer, he began to grow greedier.'},
+{sc:'🧑‍🌾🤔💭',t:'"If she lays one egg every day," he thought greedily, "she must have hundreds of golden eggs inside her! I will cut her open and get them all at once — and be the richest man in the world!"'},
+{sc:'🪿😢🔪',t:'With trembling hands, the foolish farmer took out his knife and cut open the goose — but found nothing inside. No gold. No eggs. Nothing at all. She was exactly like any ordinary goose.'},
+{sc:'🧑‍🌾😭❌',t:'The farmer sank to the ground and wept bitterly. There would be no more golden eggs — ever again. His terrible greed had destroyed the very source of all his wealth and happiness.'}
+],
+moral:"Greed destroys what patience built. Be grateful for steady blessings — never sacrifice tomorrow's abundance for today's impatience."},
+hi:{title:'सोने के अंडे वाली मुर्गी',tag:'लालच अपना ही नुकसान करता है',
+pages:[
+{sc:'🧑‍🌾🪿💛',t:'एक दयालु किसान के पास एक बहुत खास मुर्गी थी। हर एक सुबह बिना नागा, वह एक सुंदर, चमकीला सोने का अंडा देती थी। किसान और उसकी पत्नी हर दिन उसका दिल से शुक्रिया करते थे।'},
+{sc:'💰🏪😊',t:'वह सोने के अंडे बाज़ार में बेचकर धीरे-धीरे अमीर हो गया। अच्छा घर बनाया, अच्छा खाना खाया और आराम से जीने लगा। लेकिन जैसे-जैसे अमीर होता गया, लालच भी बढ़ता गया।'},
+{sc:'🧑‍🌾🤔💭',t:'"अगर वो हर रोज़ एक अंडा देती है," उसने लालच में सोचा, "तो उसके पेट में सैकड़ों सोने के अंडे होंगे! मैं उसे काट दूँगा और एक साथ सब निकाल लूँगा — और दुनिया का सबसे अमीर आदमी बन जाऊँगा!"'},
+{sc:'🪿😢🔪',t:'काँपते हाथों से मूर्ख किसान ने चाकू निकाला और मुर्गी काट दी — लेकिन अंदर कुछ नहीं था। न सोना, न अंडे, बिल्कुल कुछ नहीं। वह बिल्कुल आम मुर्गी जैसी थी।'},
+{sc:'🧑‍🌾😭❌',t:'किसान ज़मीन पर बैठ गया और फूट-फूटकर रोया। अब कभी सोने के अंडे नहीं मिलेंगे — कभी नहीं। उसके भयानक लालच ने उसकी सारी खुशी और दौलत के स्रोत को हमेशा के लिए नष्ट कर दिया।'}
+],
+moral:'लालच उस सब को नष्ट कर देता है जो धैर्य ने बनाया था। नियमित आशीर्वाद के लिए कृतज्ञ रहो — कभी भी आज की जल्दबाज़ी के लिए कल की समृद्धि का बलिदान मत करो।'}
+}
+];
+
+/* ================================================================
+   STATE
+================================================================ */
+let lang='en',story=null,pg=0;
+let playing=false,spd=1.0,auto=false;
+let done=new Set(),utt=null;
+let voices=[];
+
+/* ================================================================
+   VOICES
+================================================================ */
+function loadV(){voices=window.speechSynthesis.getVoices()}
+if('speechSynthesis'in window){loadV();window.speechSynthesis.onvoiceschanged=loadV}
+
+function bestVoice(l){
+  if(!voices.length)voices=window.speechSynthesis.getVoices();
+  const code=l==='hi'?'hi-IN':'en-IN';
+  const fb=l==='hi'?'hi':'en';
+  return voices.find(v=>v.lang===code)||voices.find(v=>v.lang.startsWith(fb))||voices.find(v=>v.lang.startsWith('en'))||null
+}
+
+/* ================================================================
+   LANGUAGE
+================================================================ */
+function setLang(l){
+  lang=l;
+  document.getElementById('btnEn').className='lang-btn'+(l==='en'?' active':'');
+  document.getElementById('btnHi').className='lang-btn'+(l==='hi'?' active':'');
+  renderGrid();
+  if(story)renderPg()
+}
+
+/* ================================================================
+   GRID
+================================================================ */
+function renderGrid(){
+  document.getElementById('storyGrid').innerHTML=S.map(s=>{
+    const d=s[lang];
+    return`<div class="story-card" onclick="openStory(${s.id})" style="--cc:${s.cc}">
+      <div class="s-icon">${s.icon}</div>
+      <div class="s-info">
+        <div class="s-title">${d.title}</div>
+        <div class="s-tag">${d.tag}</div>
+        <div class="s-badges">
+          <span class="badge">${d.pages.length} pages</span>
+          <span class="badge">🔊 Voice</span>
+          ${done.has(s.id)?'<span class="badge done">✓ Done</span>':''}
+        </div>
+      </div>
+      <span class="s-arr">›</span>
+    </div>`
+  }).join('')
+}
+
+/* ================================================================
+   OPEN / CLOSE STORY
+================================================================ */
+function openStory(id){
+  stopSpeech();
+  story=S.find(s=>s.id===id);pg=0;
+  document.getElementById('homeScreen').style.display='none';
+  document.getElementById('readScreen').style.display='block';
+  document.getElementById('rhIcon').textContent=story.icon;
+  document.getElementById('pageCard').style.setProperty('--cc',story.cc);
+  renderPg();
+  window.scrollTo(0,0)
+}
+
+function goHome(){
+  stopSpeech();
+  document.getElementById('homeScreen').style.display='block';
+  document.getElementById('readScreen').style.display='none';
+  story=null;renderGrid()
+}
+
+/* ================================================================
+   RENDER PAGE
+================================================================ */
+function renderPg(){
+  const d=story[lang];
+  const total=d.pages.length;
+  const isEnd=pg>=total;
+  stopSpeech();
+
+  // Header
+  document.getElementById('rhTitle').textContent=d.title;
+  document.getElementById('rhMeta').textContent=isEnd
+    ?(lang==='hi'?'कहानी पूरी हुई 🎉':'Story Complete! 🎉')
+    :`${lang==='hi'?'पृष्ठ':'Page'} ${pg+1} ${lang==='hi'?'में से':'of'} ${total}`;
+
+  // Progress
+  document.getElementById('pgFill').style.width=(isEnd?100:((pg+1)/total)*100)+'%';
+
+  // Sections
+  const pc=document.getElementById('pageCard');
+  const mc=document.getElementById('moralCard');
+  const cc=document.getElementById('compCard');
+  const ab=document.getElementById('audioBox');
+  const ar=document.querySelector('.auto-row');
+
+  if(isEnd){
+    pc.style.display='none';mc.style.display='block';cc.style.display='block';
+    ab.style.opacity='.4';ab.style.pointerEvents='none';
+    ar.style.display='none';
+    const mt=document.getElementById('moralText');
+    mt.textContent=d.moral;mt.className='moral-text'+(lang==='hi'?' hi':'');
+    document.getElementById('readMoralBtn').textContent=lang==='hi'?'🔊 नीति सुनें':'🔊 Read Moral Aloud';
+    document.getElementById('compTitle').textContent=lang==='hi'?'बहुत बढ़िया! 🎉':'Well done! 🎉';
+    document.getElementById('compSub').textContent=lang==='hi'?'आपने यह कहानी पूरी की!':'You finished this story!';
+    done.add(story.id);playSuccSnd();
+  }else{
+    pc.style.display='block';mc.style.display='none';cc.style.display='none';
+    ab.style.opacity='1';ab.style.pointerEvents='auto';
+    ar.style.display='flex';
+    const p=d.pages[pg];
+    document.getElementById('pageScene').textContent=p.sc;
+    const pt=document.getElementById('pageText');
+    pt.innerHTML=wrapW(p.t);
+    pt.className='story-text'+(lang==='hi'?' hi':'');
+    updAudio();
+  }
+
+  // Nav
+  const bPrev=document.getElementById('btnPrev');
+  const bNext=document.getElementById('btnNext');
+  bPrev.disabled=pg===0;
+  if(isEnd){
+    bNext.textContent=lang==='hi'?'↩ सभी कहानियाँ':'↩ All Stories';
+    bNext.onclick=goHome
+  }else if(pg===total-1){
+    bNext.textContent=lang==='hi'?'नीति देखें →':'See Moral →';
+    bNext.onclick=()=>goPage(1)
+  }else{
+    bNext.textContent=lang==='hi'?'अगला →':'Next →';
+    bNext.onclick=()=>goPage(1)
+  }
+
+  // Animate
+  pc.style.opacity='0';pc.style.transform='translateY(10px)';
+  setTimeout(()=>{pc.style.transition='opacity .3s,transform .3s';pc.style.opacity='1';pc.style.transform='translateY(0)'},30)
+}
+
+function goPage(dir){
+  const d=story[lang];
+  const np=pg+dir;
+  if(np<0||np>d.pages.length)return;
+  stopSpeech();pg=np;pageSnd();renderPg()
+}
+
+/* ================================================================
+   WORD WRAPPING & HIGHLIGHTING
+================================================================ */
+function wrapW(text){
+  let c=0;
+  return text.split(/(\s+)/).map(tok=>{
+    const s=c;c+=tok.length;
+    return/^\s+$/.test(tok)?tok:`<span class="word-span" data-s="${s}" data-e="${c}">${tok}</span>`
+  }).join('')
+}
+
+function hilite(ci){
+  document.querySelectorAll('.word-span').forEach(w=>w.classList.remove('active'));
+  const t=[...document.querySelectorAll('.word-span')].find(w=>ci>=+w.dataset.s&&ci<+w.dataset.e);
+  if(t){t.classList.add('active');t.scrollIntoView({behavior:'smooth',block:'nearest'})}
+}
+function clearHilite(){document.querySelectorAll('.word-span').forEach(w=>w.classList.remove('active'))}
+
+/* ================================================================
+   SPEECH
+================================================================ */
+function togglePlay(){playing?stopSpeech():startSpeech()}
+
+function startSpeech(textOverride){
+  if(!('speechSynthesis'in window)){showToast('🔇 Voice not supported on this browser');return}
+  const d=story[lang];
+  const isEnd=pg>=d.pages.length;
+  const text=textOverride||(isEnd?null:d.pages[pg].t);
+  if(!text)return;
+
+  window.speechSynthesis.cancel();
+  utt=new SpeechSynthesisUtterance(text);
+  utt.lang=lang==='hi'?'hi-IN':'en-US';
+  utt.rate=spd;utt.pitch=lang==='hi'?1.0:1.1;utt.volume=1;
+
+  const v=bestVoice(lang);
+  if(v)utt.voice=v;
+  if(lang==='hi'&&(!v||!v.lang.includes('hi')))showToast('⚠️ Hindi voice not found — using default');
+
+  utt.onboundary=e=>{if(e.name==='word')hilite(e.charIndex)};
+  utt.onend=()=>{
+    playing=false;clearHilite();setPlayUI(false);
+    if(!textOverride&&auto&&pg<d.pages.length)setTimeout(()=>goPage(1),900)
+  };
+  utt.onerror=()=>{playing=false;setPlayUI(false)};
+
+  window.speechSynthesis.speak(utt);
+  playing=true;setPlayUI(true)
+}
+
+function stopSpeech(){
+  if('speechSynthesis'in window)window.speechSynthesis.cancel();
+  playing=false;setPlayUI(false);clearHilite()
+}
+
+function readMoral(){
+  const d=story[lang];
+  startSpeech(d.moral)
+}
+
+function setPlayUI(on){
+  const btn=document.getElementById('playBtn');
+  const icon=document.getElementById('rhIcon');
+  const wbs=document.querySelectorAll('.wb');
+  if(on){
+    btn.textContent='■';btn.classList.add('on');
+    icon.classList.add('speaking');
+    wbs.forEach(w=>w.classList.add('on'))
+  }else{
+    btn.textContent='▶';btn.classList.remove('on');
+    icon.classList.remove('speaking');
+    wbs.forEach(w=>w.classList.remove('on'))
+  }
+  updAudio()
+}
+
+function updAudio(){
+  document.getElementById('audioTitle').textContent=playing
+    ?(lang==='hi'?'🎙️ सुन रहे हैं…':'🎙️ Narrating…')
+    :(lang==='hi'?'▶ सुनने के लिए दबाएँ':'▶ Tap to listen');
+  document.getElementById('audioSub').textContent=lang==='hi'?'हिंदी आवाज़ उपलब्ध':'Hindi & English voice'
+}
+
+function setSpd(btn){
+  document.querySelectorAll('.spd-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');spd=parseFloat(btn.dataset.s);
+  if(playing){stopSpeech();startSpeech()}
+}
+
+document.getElementById('autoTog').addEventListener('change',function(){auto=this.checked});
+
+/* ================================================================
+   SOUND EFFECTS
+================================================================ */
+let actx=null;
+function getCtx(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();return actx}
+
+function pageSnd(){
+  try{
+    const c=getCtx(),b=c.createBuffer(1,c.sampleRate*.1,c.sampleRate),d=b.getChannelData(0);
+    for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.exp(-i/(c.sampleRate*.02));
+    const src=c.createBufferSource();src.buffer=b;
+    const g=c.createGain();g.gain.value=0.1;
+    const f=c.createBiquadFilter();f.type='bandpass';f.frequency.value=2500;f.Q.value=.4;
+    src.connect(f);f.connect(g);g.connect(c.destination);src.start()
+  }catch(e){}
+}
+
+function playSuccSnd(){
+  try{
+    const c=getCtx();
+    [523,659,784,1047].forEach((freq,i)=>{
+      const o=c.createOscillator(),g=c.createGain();
+      o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=freq;
+      const t=c.currentTime+i*.13;
+      g.gain.setValueAtTime(.22,t);g.gain.exponentialRampToValueAtTime(.001,t+.55);
+      o.start(t);o.stop(t+.6)
+    })
+  }catch(e){}
+}
+
+/* ================================================================
+   TOAST
+================================================================ */
+let tt=null;
+function showToast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  clearTimeout(tt);tt=setTimeout(()=>el.classList.remove('show'),2800)
+}
+
+/* ================================================================
+   INIT
+================================================================ */
+renderGrid();
+window.addEventListener('beforeunload',stopSpeech);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)stopSpeech()});
+</script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.kidslearning'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.kidslearning.apps"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            applicationIdSuffix ".debug"
+            debuggable true
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    packagingOptions {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+
+    // ── AdMob (Google Ads) ──
+    // Step 1: Uncomment the line below
+    // Step 2: Add your App ID in AndroidManifest.xml (see comment there)
+    // Step 3: Replace "ca-app-pub-XXXXXXXX/YYYYYYYY" in MainActivity with your Ad Unit ID
+    // implementation 'com.google.android.gms:play-services-ads:23.0.0'
+}
